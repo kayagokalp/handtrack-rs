@@ -93,14 +93,7 @@ fn detection_boxes(
 
 #[cfg(test)]
 mod test {
-    // Checks if error rate is in acceptable range.
-    macro_rules! assert_delta {
-        ($x:expr, $y:expr, $d:expr) => {
-            if !($x - $y < $d || $y - $x < $d) {
-                panic!();
-            }
-        };
-    }
+    use approx::relative_eq;
 
     use crate::{
         detect::detect,
@@ -127,10 +120,10 @@ mod test {
         let lt = &detection_box.rect.lt;
         let rb = &detection_box.rect.rb;
 
-        assert_delta!(lt.x, 221, 2);
-        assert_delta!(lt.y, 65, 2);
-        assert_delta!(rb.x, 368, 2);
-        assert_delta!(rb.y, 235, 2);
+        relative_eq!(lt.x as f32, 221_f32, max_relative = 1.0);
+        relative_eq!(lt.y as f32, 65_f32, max_relative = 1.0);
+        relative_eq!(rb.x as f32, 368_f32, max_relative = 1.0);
+        relative_eq!(rb.y as f32, 235_f32, max_relative = 1.0);
     }
 
     #[test]
@@ -152,18 +145,18 @@ mod test {
         let lt = &detection_box.rect.lt;
         let rb = &detection_box.rect.rb;
 
-        assert_delta!(lt.x, 292, 2);
-        assert_delta!(lt.y, 177, 2);
-        assert_delta!(rb.x, 375, 2);
-        assert_delta!(rb.y, 302, 2);
+        relative_eq!(lt.x as f32, 292_f32, max_relative = 1.0);
+        relative_eq!(lt.y as f32, 177_f32, max_relative = 1.0);
+        relative_eq!(rb.x as f32, 375_f32, max_relative = 1.0);
+        relative_eq!(rb.y as f32, 302_f32, max_relative = 1.0);
 
         let detection_box_2 = &detection[1];
         let lt2 = &detection_box_2.rect.lt;
         let rb2 = &detection_box_2.rect.rb;
 
-        assert_delta!(lt2.x, 38, 2);
-        assert_delta!(lt2.y, 188, 2);
-        assert_delta!(rb2.x, 122, 2);
-        assert_delta!(rb2.y, 294, 2);
+        relative_eq!(lt2.x as f32, 38_f32, max_relative = 1.0);
+        relative_eq!(lt2.y as f32, 188_f32, max_relative = 1.0);
+        relative_eq!(rb2.x as f32, 122_f32, max_relative = 1.0);
+        relative_eq!(rb2.y as f32, 294_f32, max_relative = 1.0);
     }
 }
