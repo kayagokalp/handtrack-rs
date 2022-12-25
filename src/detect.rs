@@ -152,9 +152,9 @@ mod test {
         let lt2 = &detection_box_2.rect.lt;
         let rb2 = &detection_box_2.rect.rb;
 
-        assert!(lt2.x == 292);
-        assert!(lt2.y == 177);
-        assert!(rb2.x == 375);
-        assert!(rb2.y == 302);
+        assert!(lt2.x == 38);
+        assert!(lt2.y == 188);
+        assert!(rb2.x == 122);
+        assert!(rb2.y == 294);
     }
 }
