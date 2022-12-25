@@ -88,7 +88,6 @@ fn detection_boxes(
             detection_boxes.push(DetectionBox::new(rect, scores[i]));
         }
     }
-
     detection_boxes
 }
 
@@ -123,5 +122,39 @@ mod test {
         assert!(lt.y == 65);
         assert!(rb.x == 368);
         assert!(rb.y == 235);
+    }
+
+    #[test]
+    pub fn test_detect_multi_hand() {
+        // Construct image.
+        let project_dir = env!("CARGO_MANIFEST_DIR");
+        let project_dir = PathBuf::from(project_dir).join("test/multi_hand.jpeg");
+        let image = Image::from_file(project_dir).unwrap();
+
+        // Construct detection options.
+        let score_threshold = 0.7f32;
+        let max_hands = 2;
+        let detection_opts = DetectionOptions::new(max_hands, score_threshold);
+        // Run the detection.
+        let detection = detect(image, detection_opts).unwrap();
+        assert!(detection.len() == 2);
+
+        let detection_box = &detection[0];
+        let lt = &detection_box.rect.lt;
+        let rb = &detection_box.rect.rb;
+
+        assert!(lt.x == 292);
+        assert!(lt.y == 177);
+        assert!(rb.x == 375);
+        assert!(rb.y == 302);
+
+        let detection_box_2 = &detection[1];
+        let lt2 = &detection_box_2.rect.lt;
+        let rb2 = &detection_box_2.rect.rb;
+
+        assert!(lt2.x == 292);
+        assert!(lt2.y == 177);
+        assert!(rb2.x == 375);
+        assert!(rb2.y == 302);
     }
 }
