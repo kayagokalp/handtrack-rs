@@ -14,7 +14,6 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  REGISTRY: ghcr.io
 
 jobs:
   cargo-build-workspace:
@@ -30,7 +29,7 @@ jobs:
         name: Cargo Build Workspace
         with:
           command: build
-          args: --locked --workspace --all-features --all-targets
+          args: --workspace --all-features --all-targets
         env:
           RUSTFLAGS: "-D warnings"
 
@@ -61,7 +60,7 @@ jobs:
           crate: cargo-toml-lint
           version: "0.1"
       - name: Run Cargo.toml linter
-        run: git ls-files | grep Cargo.toml$ | grep -v 'templates/sway-test-rs' | xargs --verbose -n 1 cargo-toml-lint
+        run: git ls-files | grep Cargo.toml$ | xargs --verbose -n 1 cargo-toml-lint
 
   cargo-fmt-check:
     runs-on: ubuntu-latest
@@ -88,7 +87,6 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --locked
 
   cargo-unused-deps-check:
     runs-on: ubuntu-latest
@@ -104,12 +102,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: install
-          args: --locked cargo-udeps
+          args: cargo-udeps
       - name: Check Unused Deps
         uses: actions-rs/cargo@v1
         with:
           command: udeps
-          args: --locked --all-targets
+          args: --all-targets
 
   publish:
     # Only do this job if publishing a release
