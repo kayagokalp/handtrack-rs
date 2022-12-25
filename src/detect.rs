@@ -143,18 +143,18 @@ mod test {
         let lt = &detection_box.rect.lt;
         let rb = &detection_box.rect.rb;
 
-        assert!(lt.x == 292);
-        assert!(lt.y == 177);
-        assert!(rb.x == 375);
-        assert!(rb.y == 302);
+        assert_eq!(lt.x, 292);
+        assert_eq!(lt.y, 177);
+        assert_eq!(rb.x, 375);
+        assert_eq!(rb.y, 302);
 
         let detection_box_2 = &detection[1];
         let lt2 = &detection_box_2.rect.lt;
         let rb2 = &detection_box_2.rect.rb;
 
-        assert!(lt2.x == 38);
-        assert!(lt2.y == 188);
-        assert!(rb2.x == 122);
-        assert!(rb2.y == 294);
+        assert_eq!(lt2.x, 38);
+        assert_eq!(lt2.y, 188);
+        assert_eq!(rb2.x, 122);
+        assert_eq!(rb2.y, 294);
     }
 }
