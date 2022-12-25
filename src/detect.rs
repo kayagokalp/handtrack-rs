@@ -74,10 +74,10 @@ fn detection_boxes(
             let right = boxes[index + 3] * width as f32;
 
             // Cast to integer points
-            let left = left as u32;
-            let right = right as u32;
-            let top = top as u32;
-            let bottom = bottom as u32;
+            let left = left.floor() as u32;
+            let right = right.floor() as u32;
+            let top = top.floor() as u32;
+            let bottom = bottom.floor() as u32;
 
             // Create points defining the detection box.
             let lt_point = Point::new(left, top);
@@ -93,6 +93,15 @@ fn detection_boxes(
 
 #[cfg(test)]
 mod test {
+    // Checks if error rate is in acceptable range.
+    macro_rules! assert_delta {
+        ($x:expr, $y:expr, $d:expr) => {
+            if !($x - $y < $d || $y - $x < $d) {
+                panic!();
+            }
+        };
+    }
+
     use crate::{
         detect::detect,
         utils::{image::Image, opts::DetectionOptions},
@@ -118,10 +127,10 @@ mod test {
         let lt = &detection_box.rect.lt;
         let rb = &detection_box.rect.rb;
 
-        assert!(lt.x == 221);
-        assert!(lt.y == 65);
-        assert!(rb.x == 368);
-        assert!(rb.y == 235);
+        assert_delta!(lt.x, 221, 2);
+        assert_delta!(lt.y, 65, 2);
+        assert_delta!(rb.x, 368, 2);
+        assert_delta!(rb.y, 235, 2);
     }
 
     #[test]
@@ -137,24 +146,24 @@ mod test {
         let detection_opts = DetectionOptions::new(max_hands, score_threshold);
         // Run the detection.
         let detection = detect(image, detection_opts).unwrap();
-        assert!(detection.len() == 2);
+        assert_eq!(detection.len(), 2);
 
         let detection_box = &detection[0];
         let lt = &detection_box.rect.lt;
         let rb = &detection_box.rect.rb;
 
-        assert_eq!(lt.x, 292);
-        assert_eq!(lt.y, 177);
-        assert_eq!(rb.x, 375);
-        assert_eq!(rb.y, 302);
+        assert_delta!(lt.x, 292, 2);
+        assert_delta!(lt.y, 177, 2);
+        assert_delta!(rb.x, 375, 2);
+        assert_delta!(rb.y, 302, 2);
 
         let detection_box_2 = &detection[1];
         let lt2 = &detection_box_2.rect.lt;
         let rb2 = &detection_box_2.rect.rb;
 
-        assert_eq!(lt2.x, 38);
-        assert_eq!(lt2.y, 188);
-        assert_eq!(rb2.x, 122);
-        assert_eq!(rb2.y, 294);
+        assert_delta!(lt2.x, 38, 2);
+        assert_delta!(lt2.y, 188, 2);
+        assert_delta!(rb2.x, 122, 2);
+        assert_delta!(rb2.y, 294, 2);
     }
 }
