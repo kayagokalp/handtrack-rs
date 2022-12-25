@@ -19,7 +19,7 @@ impl<'a> Session {
     }
 
     /// Creates a new session for the given model.
-    pub fn from_model(model: Model) -> Result<Self>{
+    pub fn from_model(model: &Model) -> Result<Self> {
         let session_opts = tensorflow::SessionOptions::default();
         let graph = model.graph();
         let tf_session = tensorflow::Session::new(&session_opts, graph)?;
