@@ -3,6 +3,7 @@ name = "handtrack-rs"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+repository = "https://github.com/kayagokalp/handtrack-rs"
 exclude = ["test/", "assets/"]
 
 [dependencies]
