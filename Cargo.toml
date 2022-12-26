@@ -5,7 +5,7 @@ description = "A library for hand detection."
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/kayagokalp/handtrack-rs"
-exclude = ["test/", "assets/"]
+exclude = ["test/"]
 
 [dependencies]
 anyhow = "1.0.0"
