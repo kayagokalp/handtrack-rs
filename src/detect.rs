@@ -94,6 +94,7 @@ fn detection_boxes(
 #[cfg(test)]
 mod test {
     use approx::relative_eq;
+    use serial_test::serial;
 
     use crate::{
         detect::detect,
@@ -102,6 +103,7 @@ mod test {
     use std::path::PathBuf;
 
     #[test]
+    #[serial]
     pub fn test_detect_single_hand() {
         // Construct image.
         let project_dir = env!("CARGO_MANIFEST_DIR");
@@ -127,6 +129,7 @@ mod test {
     }
 
     #[test]
+    #[serial]
     pub fn test_detect_multi_hand() {
         // Construct image.
         let project_dir = env!("CARGO_MANIFEST_DIR");

@@ -4,9 +4,14 @@ version = "0.1.0"
 description = "A library for hand detection."
 edition = "2021"
 license = "MIT"
+repository = "https://github.com/kayagokalp/handtrack-rs"
+exclude = ["test/"]
 
 [dependencies]
 anyhow = "1.0.0"
 approx = "0.3.2"
+downloader = "0.2.6"
+home = "0.5.4"
 image = "0.24.5"
+serial_test = "0.10.0"
 tensorflow = "0.19.1"
