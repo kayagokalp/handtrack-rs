@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use downloader::Downloader;
-use std::{path::PathBuf, fs};
+use std::{fs, path::PathBuf};
 
 /// Default folder to be placed in the home directory which will hold the frozen graph.
 pub(crate) const DOWNLOAD_FOLDER: &str = ".handtrack-rs";
@@ -22,7 +22,10 @@ pub(crate) fn download_frozen_graph() -> Result<()> {
         .build()?;
     let dl = downloader::Download::new(DOWNLOAD_URL);
 
-    println!("Starting to download the frozen graph from {:?}", DOWNLOAD_URL);
+    println!(
+        "Starting to download the frozen graph from {:?}",
+        DOWNLOAD_URL
+    );
     let result = downloader.download(&[dl])?;
     for r in result {
         let summary = r?;
