@@ -3,10 +3,14 @@ name = "handtrack-rs"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-exclude = ["test/"]
+exclude = ["test/", "assets/"]
 
 [dependencies]
 anyhow = "1.0.0"
 approx = "0.3.2"
+downloader = "0.2.6"
+home = "0.5.4"
 image = "0.24.5"
+reqwest = "0.11"
+serial_test = "0.10.0"
 tensorflow = "0.19.1"
