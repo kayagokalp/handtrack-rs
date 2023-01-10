@@ -10,7 +10,10 @@ use anyhow::Result;
 use tensorflow::{SessionRunArgs, Tensor};
 
 /// Run the detection for the given `Image` and `DetectionOptions`.
-pub fn detect(image: Image, opts: DetectionOptions) -> Result<Vec<DetectionBox>> {
+///
+/// This can be used for detection of a single image. See `detect()` for performing detection i&&n
+/// image streams.
+pub fn load_model_and_detect(image: Image, opts: DetectionOptions) -> Result<Vec<DetectionBox>> {
     // Create the input tensor from `Image`.
     let input = image.tensor()?;
     // Get the detection model from the disk.
@@ -18,6 +21,49 @@ pub fn detect(image: Image, opts: DetectionOptions) -> Result<Vec<DetectionBox>>
     let graph = model.graph();
     // Create the session for detection.
     let session = Session::from_model(&model)?;
+
+    let image_tensor = graph.operation_by_name_required("image_tensor")?;
+    let d_boxes = graph.operation_by_name_required("detection_boxes")?;
+    let d_scores = graph.operation_by_name_required("detection_scores")?;
+
+    // Construct input and outputs in session run arguments.
+    let mut args = SessionRunArgs::new();
+    args.add_feed(&image_tensor, 0, &input);
+    let boxes_token = args.request_fetch(&d_boxes, 0);
+    let scores_token = args.request_fetch(&d_scores, 0);
+
+    // Run the session.
+    session.session().run(&mut args)?;
+
+    // Fetch outputs.
+    let boxes: Tensor<f32> = args.fetch(boxes_token)?;
+    let scores: Tensor<f32> = args.fetch(scores_token)?;
+
+    // Maximum number of hands we will find in the output.
+    let max_hands = opts.max_hands;
+    // Minimum score needed for classifying the box, as detected hand.
+    let score_threshold = opts.score_threshold;
+    let detected_boxes = detection_boxes(
+        scores,
+        boxes,
+        score_threshold,
+        max_hands,
+        image.height,
+        image.width,
+    );
+
+    Ok(detected_boxes)
+}
+
+/// Run the detection for the given `Image` and `DetectionOptions` with provided `Model`.
+pub fn detect(model: Model, image: &Image, opts: DetectionOptions) -> Result<Vec<DetectionBox>> {
+    // Create the input tensor from `Image`.
+    let input = image.tensor()?;
+
+    // Create the session for detection.
+    let session = Session::from_model(&model)?;
+
+    let graph = model.graph();
 
     let image_tensor = graph.operation_by_name_required("image_tensor")?;
     let d_boxes = graph.operation_by_name_required("detection_boxes")?;
@@ -97,14 +143,15 @@ mod test {
     use serial_test::serial;
 
     use crate::{
-        detect::detect,
+        detect::{detect, load_model_and_detect},
+        tensor::model::Model,
         utils::{image::Image, opts::DetectionOptions},
     };
     use std::path::PathBuf;
 
     #[test]
     #[serial]
-    pub fn test_detect_single_hand() {
+    pub fn test_detect() {
         // Construct image.
         let project_dir = env!("CARGO_MANIFEST_DIR");
         let project_dir = PathBuf::from(project_dir).join("test/single_hand.jpeg");
@@ -114,8 +161,10 @@ mod test {
         let score_threshold = 0.7f32;
         let max_hands = 1;
         let detection_opts = DetectionOptions::new(max_hands, score_threshold);
+        // Load the model.
+        let frozen_model = Model::from_frozen_graph().unwrap();
         // Run the detection.
-        let detection = detect(image, detection_opts).unwrap();
+        let detection = detect(frozen_model, &image, detection_opts).unwrap();
         assert!(detection.len() == 1);
 
         let detection_box = &detection[0];
@@ -130,7 +179,33 @@ mod test {
 
     #[test]
     #[serial]
-    pub fn test_detect_multi_hand() {
+    pub fn test_load_and_detect_single_hand() {
+        // Construct image.
+        let project_dir = env!("CARGO_MANIFEST_DIR");
+        let project_dir = PathBuf::from(project_dir).join("test/single_hand.jpeg");
+        let image = Image::from_file(project_dir).unwrap();
+
+        // Construct detection options.
+        let score_threshold = 0.7f32;
+        let max_hands = 1;
+        let detection_opts = DetectionOptions::new(max_hands, score_threshold);
+        // Run the detection.
+        let detection = load_model_and_detect(image, detection_opts).unwrap();
+        assert!(detection.len() == 1);
+
+        let detection_box = &detection[0];
+        let lt = &detection_box.rect.lt;
+        let rb = &detection_box.rect.rb;
+
+        relative_eq!(lt.x as f32, 221_f32, max_relative = 1.0);
+        relative_eq!(lt.y as f32, 65_f32, max_relative = 1.0);
+        relative_eq!(rb.x as f32, 368_f32, max_relative = 1.0);
+        relative_eq!(rb.y as f32, 235_f32, max_relative = 1.0);
+    }
+
+    #[test]
+    #[serial]
+    pub fn test_load_and_detect_multi_hand() {
         // Construct image.
         let project_dir = env!("CARGO_MANIFEST_DIR");
         let project_dir = PathBuf::from(project_dir).join("test/multi_hand.jpeg");
@@ -141,7 +216,7 @@ mod test {
         let max_hands = 2;
         let detection_opts = DetectionOptions::new(max_hands, score_threshold);
         // Run the detection.
-        let detection = detect(image, detection_opts).unwrap();
+        let detection = load_model_and_detect(image, detection_opts).unwrap();
         assert_eq!(detection.len(), 2);
 
         let detection_box = &detection[0];

@@ -26,6 +26,19 @@ impl<'a> Model {
         Ok(Model::new(Box::new(graph)))
     }
 
+    /// Read the graph from provided `Path` and construct a `Model` from it.
+    pub fn from_path(
+        graph_path: &std::path::Path,
+        options: ImportGraphDefOptions,
+    ) -> Result<Model> {
+        let mut model_bytes = Vec::new();
+        let mut graph_file = File::open(graph_path)?;
+        graph_file.read_to_end(&mut model_bytes)?;
+        let mut graph = Graph::new();
+        graph.import_graph_def(&model_bytes, &options)?;
+        Ok(Model::new(Box::new(graph)))
+    }
+
     /// Returns a reference to the graph of a `Model`.
     pub fn graph(&'a self) -> &'a Graph {
         &self.graph
