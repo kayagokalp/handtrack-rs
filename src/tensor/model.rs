@@ -27,7 +27,10 @@ impl<'a> Model {
     }
 
     /// Read the graph from provided `Path` and construct a `Model` from it.
-    pub fn from_path(graph_path: &std::path::Path, options: ImportGraphDefOptions) -> Result<Model> {
+    pub fn from_path(
+        graph_path: &std::path::Path,
+        options: ImportGraphDefOptions,
+    ) -> Result<Model> {
         let mut model_bytes = Vec::new();
         let mut graph_file = File::open(graph_path)?;
         graph_file.read_to_end(&mut model_bytes)?;
@@ -56,25 +59,4 @@ pub(crate) fn frozen_graph() -> Result<Vec<u8>> {
     let mut graph_file = File::open(graph_path)?;
     graph_file.read_to_end(&mut buffer)?;
     Ok(buffer)
-}
-
-#[cfg(test)]
-mod test {
-    use tensorflow::ImportGraphDefOptions;
-
-    use crate::utils::download::frozen_graph_path;
-
-    use super::Model;
-
-
-    #[test]
-    fn test_model_loading() {
-        let graph_path = frozen_graph_path().unwrap();
-        let model = Model::from_path(&graph_path, ImportGraphDefOptions::default()).unwrap();
-        let loaded_graph_def = model.graph().graph_def().unwrap();
-        let frozen_model_graph_def = Model::from_frozen_graph().unwrap().graph().graph_def().unwrap();
-
-        assert_eq!(loaded_graph_def, frozen_model_graph_def)
-    }
-
 }

@@ -144,7 +144,8 @@ mod test {
 
     use crate::{
         detect::{detect, load_model_and_detect},
-        utils::{image::Image, opts::DetectionOptions}, tensor::model::Model,
+        tensor::model::Model,
+        utils::{image::Image, opts::DetectionOptions},
     };
     use std::path::PathBuf;
 
